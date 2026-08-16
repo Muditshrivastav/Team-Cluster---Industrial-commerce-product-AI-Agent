@@ -1,12 +1,12 @@
 -- Apply in Supabase SQL Editor before running the backend.
 create extension if not exists vector with schema extensions;
+create extension if not exists pgcrypto with schema extensions;
 
 -- Dedicated table: do not reuse the team's existing public.products table.
 create table if not exists public.rag_products (
-  id uuid primary key default gen_random_uuid(),
+  id uuid primary key default extensions.gen_random_uuid(),
   manufacturer_part_number text not null,
   normalized_mpn text generated always as (upper(regexp_replace(manufacturer_part_number, '[^A-Za-z0-9]', '', 'g'))) stored,
-  brand text not null,
   short_description text,
   specifications jsonb not null default '{}'::jsonb,
   source_urls text[] not null default '{}',
