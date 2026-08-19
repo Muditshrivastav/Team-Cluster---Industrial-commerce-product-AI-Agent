@@ -75,9 +75,10 @@ class ProductRubricMiddleware(AgentMiddleware):  # type: ignore[misc]
 
 
 def configure_langsmith(settings: Settings | None = None) -> None:
-    api_key = (settings and settings.langsmith_api_key) or os.getenv("LANGSMITH_API_KEY")
-    project = (settings and settings.langsmith_project) or os.getenv("LANGSMITH_PROJECT", "industrial-commerce-product-agent")
-    tracing = str(settings.langsmith_tracing).lower() if (settings and settings.langsmith_tracing is not None) else os.getenv("LANGSMITH_TRACING", "true")
+    s = settings or get_settings()
+    api_key = s.langsmith_api_key or os.getenv("LANGSMITH_API_KEY")
+    project = s.langsmith_project or os.getenv("LANGSMITH_PROJECT", "commerce_ai_agent")
+    tracing = "true" if s.langsmith_tracing else os.getenv("LANGSMITH_TRACING", "true")
 
     if api_key:
         os.environ["LANGSMITH_API_KEY"] = api_key
@@ -85,7 +86,7 @@ def configure_langsmith(settings: Settings | None = None) -> None:
     os.environ["LANGSMITH_PROJECT"] = project
 
 
-# Auto-configure LangSmith credentials from OS environment upon module import
+# Auto-configure LangSmith credentials before defining @traceable decorated functions
 configure_langsmith()
 
 
